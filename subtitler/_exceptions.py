@@ -1,4 +1,4 @@
-"""Custom exceptions for the Subtitler package."""
+"""Custom exceptions for the Subtitler package (kept separate to avoid cycles)."""
 
 
 class SubtitlerError(Exception):

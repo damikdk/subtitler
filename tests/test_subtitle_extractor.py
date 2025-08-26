@@ -1,4 +1,4 @@
-"""Tests for the SubtitleExtractor class."""
+"""Tests for the subtitle extraction functions."""
 
 from unittest.mock import Mock, patch
 
@@ -9,34 +9,19 @@ from subtitler import (
     DEFAULT_LANGUAGES,
     InvalidVideoInputError,
     SubtitleExtractionError,
-    SubtitleExtractor,
+    extract_subtitles,
 )
 from subtitler.constants import TEST_VIDEO_IDS, TEST_VIDEO_URLS
 
 
 class TestSubtitleExtractor:
-    """Test cases for SubtitleExtractor class."""
-
-    def setup_method(self):
-        """Set up test fixtures before each test method."""
-        self.extractor = SubtitleExtractor()
-
-    def test_init_default_languages(self):
-        """Test initialization with default languages."""
-        extractor = SubtitleExtractor()
-        assert extractor.default_languages == DEFAULT_LANGUAGES
-
-    def test_init_custom_languages(self):
-        """Test initialization with custom languages."""
-        custom_languages = ["en", "es", "fr"]
-        extractor = SubtitleExtractor(default_languages=custom_languages)
-        assert extractor.default_languages == custom_languages
+    """Test cases for subtitle extraction functions."""
 
     @pytest.mark.parametrize("video_id", TEST_VIDEO_IDS)
     def test_extract_subtitles_with_valid_video_ids(self, video_id):
         """Test extracting subtitles with all valid video IDs from constants."""
         try:
-            subtitles = self.extractor.extract_subtitles(video_id)
+            subtitles = extract_subtitles(video_id)
 
             # Verify transcript is returned as string
             assert isinstance(subtitles, str)
@@ -60,7 +45,7 @@ class TestSubtitleExtractor:
     def test_extract_subtitles_with_valid_video_urls(self, video_url):
         """Test extracting subtitles with all valid video URLs from constants."""
         try:
-            subtitles = self.extractor.extract_subtitles(video_url)
+            subtitles = extract_subtitles(video_url)
 
             # Verify transcript is returned as string
             assert isinstance(subtitles, str)
@@ -87,9 +72,7 @@ class TestSubtitleExtractor:
         custom_languages = ["es", "en", "fr"]
 
         try:
-            subtitles = self.extractor.extract_subtitles(
-                video_id, languages=custom_languages
-            )
+            subtitles = extract_subtitles(video_id, languages=custom_languages)
             assert isinstance(subtitles, str)
             assert len(subtitles) > 0
         except SubtitleExtractionError:
@@ -100,28 +83,28 @@ class TestSubtitleExtractor:
         with pytest.raises(
             InvalidVideoInputError, match="Video input must be a non-empty string"
         ):
-            self.extractor.extract_subtitles("")
+            extract_subtitles("")
 
     def test_extract_subtitles_whitespace_only_input(self):
         """Test that whitespace-only input raises InvalidVideoInputError."""
         with pytest.raises(
             InvalidVideoInputError, match="Video input must be a non-empty string"
         ):
-            self.extractor.extract_subtitles("   ")
+            extract_subtitles("   ")
 
     def test_extract_subtitles_none_input(self):
         """Test that None input raises InvalidVideoInputError."""
         with pytest.raises(
             InvalidVideoInputError, match="Video input must be a non-empty string"
         ):
-            self.extractor.extract_subtitles(None)
+            extract_subtitles(None)
 
     def test_extract_subtitles_non_string_input(self):
         """Test that non-string input raises InvalidVideoInputError."""
         with pytest.raises(
             InvalidVideoInputError, match="Video input must be a non-empty string"
         ):
-            self.extractor.extract_subtitles(123)
+            extract_subtitles(123)
 
     @pytest.mark.parametrize(
         "invalid_url",
@@ -138,7 +121,7 @@ class TestSubtitleExtractor:
     def test_extract_subtitles_invalid_urls(self, invalid_url):
         """Test that invalid URLs raise InvalidVideoInputError."""
         with pytest.raises(InvalidVideoInputError, match="Invalid video input"):
-            self.extractor.extract_subtitles(invalid_url)
+            extract_subtitles(invalid_url)
 
     @pytest.mark.parametrize(
         "invalid_video_id",
@@ -152,7 +135,7 @@ class TestSubtitleExtractor:
     def test_extract_subtitles_invalid_video_ids(self, invalid_video_id):
         """Test that invalid video IDs raise InvalidVideoInputError."""
         with pytest.raises(InvalidVideoInputError, match="Invalid video input"):
-            self.extractor.extract_subtitles(invalid_video_id)
+            extract_subtitles(invalid_video_id)
 
     def test_extract_subtitles_unavailable_video_id(self):
         """Test that a valid format but unavailable video ID raises SubtitleExtractionError."""
@@ -162,7 +145,7 @@ class TestSubtitleExtractor:
         )
 
         with pytest.raises(SubtitleExtractionError, match="Video .* is unavailable"):
-            self.extractor.extract_subtitles(unavailable_video_id)
+            extract_subtitles(unavailable_video_id)
 
     @patch("subtitler.core.subtitle_extractor.YouTubeTranscriptApi")
     def test_extract_subtitles_transcripts_disabled(self, mock_api_class):
@@ -171,12 +154,10 @@ class TestSubtitleExtractor:
         mock_api.fetch.side_effect = TranscriptsDisabled("video_id")
         mock_api_class.return_value = mock_api
 
-        extractor = SubtitleExtractor()
-
         with pytest.raises(
             SubtitleExtractionError, match="Subtitles are disabled for video"
         ):
-            extractor.extract_subtitles("dQw4w9WgXcQ")
+            extract_subtitles("dQw4w9WgXcQ")
 
     @patch("subtitler.core.subtitle_extractor.YouTubeTranscriptApi")
     def test_extract_subtitles_video_unavailable(self, mock_api_class):
@@ -185,10 +166,8 @@ class TestSubtitleExtractor:
         mock_api.fetch.side_effect = VideoUnavailable("video_id")
         mock_api_class.return_value = mock_api
 
-        extractor = SubtitleExtractor()
-
         with pytest.raises(SubtitleExtractionError, match="Video .* is unavailable"):
-            extractor.extract_subtitles("dQw4w9WgXcQ")
+            extract_subtitles("dQw4w9WgXcQ")
 
     @patch("subtitler.core.subtitle_extractor.YouTubeTranscriptApi")
     def test_extract_subtitles_generic_exception(self, mock_api_class):
@@ -197,12 +176,10 @@ class TestSubtitleExtractor:
         mock_api.fetch.side_effect = Exception("Generic error")
         mock_api_class.return_value = mock_api
 
-        extractor = SubtitleExtractor()
-
         with pytest.raises(
             SubtitleExtractionError, match="Failed to extract subtitles"
         ):
-            extractor.extract_subtitles("dQw4w9WgXcQ")
+            extract_subtitles("dQw4w9WgXcQ")
 
     @patch("subtitler.core.subtitle_extractor.YouTubeTranscriptApi")
     def test_extract_subtitles_success_mock(self, mock_api_class):
@@ -218,8 +195,7 @@ class TestSubtitleExtractor:
         mock_api.fetch.return_value = mock_transcript
         mock_api_class.return_value = mock_api
 
-        extractor = SubtitleExtractor()
-        result = extractor.extract_subtitles("dQw4w9WgXcQ")
+        result = extract_subtitles("dQw4w9WgXcQ")
 
         assert result == "Hello world This is a test YouTube transcript"
         mock_api.fetch.assert_called_once_with(
@@ -228,28 +204,27 @@ class TestSubtitleExtractor:
 
     def test_extract_video_id_from_input_valid_id(self):
         """Test extracting video ID from valid video ID input."""
+        from subtitler.core.subtitle_extractor import _extract_video_id_from_input
         video_id = "dQw4w9WgXcQ"
-        result = self.extractor._extract_video_id_from_input(video_id)
+        result = _extract_video_id_from_input(video_id)
         assert result == video_id
 
     def test_extract_video_id_from_input_valid_url(self):
         """Test extracting video ID from valid URL input."""
+        from subtitler.core.subtitle_extractor import _extract_video_id_from_input
         url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-        result = self.extractor._extract_video_id_from_input(url)
+        result = _extract_video_id_from_input(url)
         assert result == "dQw4w9WgXcQ"
 
     def test_extract_video_id_from_input_invalid(self):
         """Test that invalid input raises InvalidVideoInputError."""
+        from subtitler.core.subtitle_extractor import _extract_video_id_from_input
         with pytest.raises(InvalidVideoInputError, match="Invalid video input"):
-            self.extractor._extract_video_id_from_input("invalid_input")
+            _extract_video_id_from_input("invalid_input")
 
 
 class TestSubtitleExtractorIntegration:
     """Integration tests that require actual network calls."""
-
-    def setup_method(self):
-        """Set up test fixtures before each test method."""
-        self.extractor = SubtitleExtractor()
 
     def test_real_video_transcript_fetch(self):
         """Test fetching a real video transcript (marked as slow test)."""
@@ -257,7 +232,7 @@ class TestSubtitleExtractorIntegration:
         video_id = "dQw4w9WgXcQ"  # Rick Astley - Never Gonna Give You Up
 
         try:
-            subtitles = self.extractor.extract_subtitles(video_id)
+            subtitles = extract_subtitles(video_id)
 
             # Basic validation
             assert isinstance(subtitles, str)

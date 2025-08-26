@@ -2,11 +2,9 @@
 
 __version__ = "0.1.0"
 
-from typing import Optional
-
 from .constants import DEFAULT_LANGUAGES
-from .core import SubtitleExtractor
-from .exceptions import (
+from .core.subtitle_extractor import extract_subtitles
+from ._exceptions import (
     InvalidVideoInputError,
     SubtitleExtractionError,
     SubtitlerError,
@@ -14,24 +12,8 @@ from .exceptions import (
 )
 
 
-def extract_subtitles(video_input: str, languages: Optional[list[str]] = None) -> str:
-    """
-    Extract subtitles/transcript for a YouTube video.
-
-    Args:
-        video_input: YouTube URL or video ID
-        languages: Preferred languages (optional)
-
-    Returns:
-        Complete subtitles/transcript as string
-    """
-    extractor = SubtitleExtractor()
-    return extractor.extract_subtitles(video_input, languages)
-
-
 __all__ = [
     "extract_subtitles",
-    "SubtitleExtractor",
     "SubtitlerError",
     "InvalidVideoInputError",
     "VideoIdExtractionError",
