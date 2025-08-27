@@ -16,7 +16,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 COPY pyproject.toml uv.lock README.md ./
 
 # Install only production dependencies
-RUN uv sync --frozen --no-dev --no-install-project
+RUN uv sync --no-dev --no-install-project
 
 # Copy application code
 COPY . .
