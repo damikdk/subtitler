@@ -1,6 +1,9 @@
 # Use Python 3.11 slim image for smaller size
 FROM python:3.11-slim
 
+# Install uv for faster dependency management
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 # Set working directory
 WORKDIR /app
 
@@ -8,9 +11,6 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app
-
-# Install uv for faster dependency management
-RUN pip install --no-cache-dir uv
 
 # Copy dependency files (include README needed by build backend)
 COPY pyproject.toml uv.lock README.md ./
