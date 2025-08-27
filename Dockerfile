@@ -12,11 +12,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Install uv for faster dependency management
 RUN pip install --no-cache-dir uv
 
-# Copy dependency files
-COPY pyproject.toml uv.lock ./
+# Copy dependency files (include README needed by build backend)
+COPY pyproject.toml uv.lock README.md ./
 
 # Install only production dependencies
-RUN uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev --no-install-project
 
 # Copy application code
 COPY . .
