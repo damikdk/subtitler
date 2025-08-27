@@ -22,27 +22,27 @@ from .._exceptions import (
 
 
 def extract_subtitles(
-    video_input: str, languages: Optional[list[str]] = None
+    video_url: str, languages: Optional[list[str]] = None
 ) -> str:
     """
     Extract the subtitles/transcript for a YouTube video by its ID or URL.
 
     Args:
-        video_input: The YouTube video ID or URL
+        video_url: The YouTube video ID or URL
         languages: List of preferred languages (defaults to DEFAULT_LANGUAGES)
 
     Returns:
         The complete subtitles/transcript as a single string
 
     Raises:
-        InvalidVideoInputError: If video_input is invalid
+        InvalidVideoInputError: If video_url is invalid
         SubtitleExtractionError: If subtitle extraction fails
     """
-    if not isinstance(video_input, str) or not video_input.strip():
+    if not isinstance(video_url, str) or not video_url.strip():
         raise InvalidVideoInputError(
             "Video input must be a non-empty string")
 
-    video_id = _extract_video_id_from_input(video_input.strip())
+    video_id = _extract_video_id_from_input(video_url.strip())
     languages = languages or DEFAULT_LANGUAGES
 
     try:
@@ -63,12 +63,12 @@ def extract_subtitles(
         ) from e
 
 
-def _extract_video_id_from_input(video_input: str) -> str:
+def _extract_video_id_from_input(video_url: str) -> str:
     """
     Extract video ID from either a URL or validate a direct video ID.
 
     Args:
-        video_input: YouTube URL or video ID
+        video_url: YouTube URL or video ID
 
     Returns:
         Valid video ID
@@ -77,15 +77,15 @@ def _extract_video_id_from_input(video_input: str) -> str:
         InvalidVideoInputError: If input is invalid
     """
     # Check if it's a URL
-    if validate_youtube_url(video_input):
-        return extract_video_id(video_input)
+    if validate_youtube_url(video_url):
+        return extract_video_id(video_url)
 
     # Check if it's a direct video ID
-    if validate_video_id(video_input):
-        return video_input
+    if validate_video_id(video_url):
+        return video_url
 
     raise InvalidVideoInputError(
-        f"Invalid video input: {video_input}. Must be a valid YouTube URL or 11-character video ID"
+        f"Invalid video input: {video_url}. Must be a valid YouTube URL or 11-character video ID"
     )
 
 

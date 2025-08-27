@@ -9,6 +9,8 @@ description = "Simple and elegant Python library for extracting video subtitles 
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
+    "fastapi[standard]>=0.116.1",
+    "uvicorn[standard]>=0.35.0",
     "youtube-transcript-api>=0.6.0",
 ]
 
