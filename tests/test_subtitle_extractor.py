@@ -222,6 +222,13 @@ class TestSubtitleExtractor:
         with pytest.raises(InvalidVideoInputError, match="Invalid video input"):
             _extract_video_id_from_input("invalid_input")
 
+    def test_extract_video_id_from_input_with_underscore(self):
+        """Test extracting video ID from URL with underscore in video ID."""
+        from subtitler.core.subtitle_extractor import _extract_video_id_from_input
+        url = "https://youtu.be/ITMouQ_EuXI"
+        result = _extract_video_id_from_input(url)
+        assert result == "ITMouQ_EuXI"
+
 
 class TestSubtitleExtractorIntegration:
     """Integration tests that require actual network calls."""

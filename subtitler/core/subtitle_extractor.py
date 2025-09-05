@@ -116,13 +116,17 @@ def validate_youtube_url(url: str) -> bool:
         if parsed.netloc.lower() == "youtu.be":
             # Path should contain video ID (11 characters)
             video_id = parsed.path.lstrip("/")
-            return len(video_id) == YOUTUBE_VIDEO_ID_LENGTH and video_id.isalnum()
+            return (
+                len(video_id) == YOUTUBE_VIDEO_ID_LENGTH
+                and video_id.replace("_", "").replace("-", "").isalnum()
+            )
 
         # For youtube.com format
         if parsed.path in ["/watch", "/watch/"]:
             query_params = parse_qs(parsed.query)
             if "v" in query_params and query_params["v"]:
                 video_id = query_params["v"][0]
+
                 return (
                     len(video_id) == YOUTUBE_VIDEO_ID_LENGTH
                     and video_id.replace("_", "").replace("-", "").isalnum()
